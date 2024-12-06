@@ -15,14 +15,17 @@ public class DonorService {
         this.donorRepository = donorRepository;
     }
 
+    //POST
     public Donor saveDonor(Donor donor) {
         return donorRepository.save(donor);
     }
 
+    //GET
     public List<Donor> getAllDonors() {
         return donorRepository.findAll();
     }
 
+    //PUT
     public Donor updateDonor(Long id, Donor donorDetails) {
         Donor donor = donorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Donor not found"));
         donor.setFirstName(donorDetails.getFirstName());
@@ -35,8 +38,22 @@ public class DonorService {
         return donorRepository.save(donor);
     }
 
+    //DELETE
     public void deleteDonor(Long id) {
         Donor donor = donorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Donor not found"));
         donorRepository.delete(donor);
+    }
+
+    //Login
+    public Donor findByUsernameAndPassword(String username, String password) {
+        return donorRepository.findByUsernameAndPassword(username, password);
+    }
+
+    public boolean isUsernameTaken(String username) {
+        return donorRepository.existsByUsername(username);
+    }
+
+    public Donor findDonorById(Long id) {
+        return donorRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BloodBank not found"));
     }
 }

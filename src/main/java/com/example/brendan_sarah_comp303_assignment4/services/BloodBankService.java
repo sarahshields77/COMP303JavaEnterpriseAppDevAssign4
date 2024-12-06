@@ -15,14 +15,17 @@ public class BloodBankService {
        this.bloodBankRepository = bloodBankRepository;
    }
 
+   //POST
     public BloodBank saveBloodBank(BloodBank bloodBank) {
         return bloodBankRepository.save(bloodBank);
     }
 
+    //GET
     public List<BloodBank> getAllBloodBanks() {
         return bloodBankRepository.findAll();
     }
 
+    //PUT
     public BloodBank updateBloodBank(Long id, BloodBank bloodBankDetails) {
         BloodBank bloodBank = bloodBankRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BloodBank not found"));
         bloodBank.setBloodbankName(bloodBankDetails.getBloodbankName());
@@ -34,8 +37,13 @@ public class BloodBankService {
         return bloodBankRepository.save(bloodBank);
     }
 
+    //DELETE
     public void deleteBloodBank(Long id) {
         BloodBank bloodBank = bloodBankRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BloodBank not found"));
         bloodBankRepository.delete(bloodBank);
+    }
+
+    public BloodBank findById(Long id) {
+        return bloodBankRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BloodBank not found"));
     }
 }

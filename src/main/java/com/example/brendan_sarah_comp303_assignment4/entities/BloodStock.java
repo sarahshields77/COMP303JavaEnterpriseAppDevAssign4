@@ -2,8 +2,6 @@ package com.example.brendan_sarah_comp303_assignment4.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
@@ -23,6 +21,14 @@ public class BloodStock {
     private LocalDate bestBefore;
     @NotNull
     private String status;
+    @ManyToOne
+    @JoinColumn(name = "donor_id", referencedColumnName = "id", nullable = false)
+    private Donor donor;
+    @ManyToOne
+    @JoinColumn(name = "bloodbank_id", referencedColumnName = "id", nullable = false)
+    private BloodBank bloodBank;
+    @NotNull
+    private LocalDate appointmentDate;
 
     // Getters and setters
 
@@ -66,4 +72,16 @@ public class BloodStock {
     public void setStatus(@NotNull String status) {
         this.status = status;
     }
+
+    public Donor getDonor() { return donor; }
+
+    public void setDonor(Donor donor) { this.donor = donor; }
+
+    public BloodBank getBloodBank() { return bloodBank; }
+
+    public void setBloodBank(BloodBank bloodBank) { this.bloodBank = bloodBank; }
+
+    public LocalDate getAppointmentDate() { return appointmentDate; }
+
+    public void setAppointmentDate(LocalDate appointmentDate) { this.appointmentDate = appointmentDate; }
 }
