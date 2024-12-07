@@ -45,7 +45,6 @@ public class BloodStockController {
             bloodStock.setDonor(donor);
             bloodStock.setBloodBank(bloodBank);
 
-            // Logic for status and bestBefore
             if (request.getAppointmentDate().isBefore(LocalDate.now())) {
                 bloodStock.setStatus("Taken");
                 bloodStock.setBestBefore(request.getAppointmentDate().plusYears(1));
@@ -68,12 +67,6 @@ public class BloodStockController {
         return ResponseEntity.ok(bloodStockService.getAllBloodStock());
     }
 
-    //PUT
-    @PutMapping("/{id}")
-    public ResponseEntity<BloodStock> updateBloodStock(@PathVariable Long id, @RequestBody @Valid BloodStock bloodStockDetails) {
-        return ResponseEntity.ok(bloodStockService.updateBloodStock(id, bloodStockDetails));
-    }
-
     //DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBloodStock(@PathVariable Long id) {
@@ -84,6 +77,7 @@ public class BloodStockController {
     //GET by BloodGroup
     @GetMapping("/availability/{bloodGroup}")
     public ResponseEntity<Boolean> checkBloodAvailability(@PathVariable String bloodGroup) {
+        System.out.println(bloodGroup);
         return ResponseEntity.ok(bloodStockService.checkBloodAvailability(bloodGroup));
     }
 
@@ -92,4 +86,59 @@ public class BloodStockController {
         System.out.println(donor);
         return bloodStockService.getBloodStocksByDonor(donor);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BloodStock> getDonationById(@PathVariable Long id) {
+        try {
+            BloodStock bloodStock = bloodStockService.findById(id); // Assuming you have a method to find by ID
+            if (bloodStock == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            return ResponseEntity.ok(bloodStock);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BloodStock> updateBloodStock(@PathVariable Long id, @RequestBody @Valid BloodStock bloodStockDetails) {
+        try {
+            BloodStock existingBloodStock = bloodStockService.findById(id);
+            if (existingBloodStock == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+
+            Donor donor = donorService.findDonorById(bloodStockDetails.getDonor().getId());
+            BloodBank bloodBank = bloodBankService.findById(bloodStockDetails.getBloodBank().getId());
+
+            existingBloodStock.setBloodGroup(donor.getBloodGroup());
+            existingBloodStock.setQuantity(bloodStockDetails.getQuantity());
+            existingBloodStock.setAppointmentDate(bloodStockDetails.getAppointmentDate());
+            existingBloodStock.setDonor(donor);
+            existingBloodStock.setBloodBank(bloodBank);
+
+            if (bloodStockDetails.getAppointmentDate().isBefore(LocalDate.now())) {
+                existingBloodStock.setStatus("Taken");
+                existingBloodStock.setBestBefore(bloodStockDetails.getAppointmentDate().plusYears(1));
+            } else {
+                // For future appointment, allow changing between Scheduled and Cancelled
+                if ("Scheduled".equals(bloodStockDetails.getStatus())) {
+                    existingBloodStock.setStatus("Scheduled");
+                } else if ("Cancelled".equals(bloodStockDetails.getStatus())) {
+                    existingBloodStock.setStatus("Cancelled");
+                } else {
+                    // If no valid status is passed, keep the previous status
+                    existingBloodStock.setStatus(existingBloodStock.getStatus());
+                }
+                existingBloodStock.setBestBefore(bloodStockDetails.getAppointmentDate().plusYears(1));
+            }
+
+            bloodStockService.saveBloodStock(existingBloodStock);
+
+            return ResponseEntity.ok(existingBloodStock);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 }

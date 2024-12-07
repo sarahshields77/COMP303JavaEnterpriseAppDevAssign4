@@ -1,5 +1,6 @@
 package com.example.brendan_sarah_comp303_assignment4.services;
 
+import com.example.brendan_sarah_comp303_assignment4.entities.BloodBank;
 import com.example.brendan_sarah_comp303_assignment4.entities.BloodStock;
 import com.example.brendan_sarah_comp303_assignment4.entities.Donor;
 import com.example.brendan_sarah_comp303_assignment4.exceptions.ResourceNotFoundException;
@@ -51,5 +52,9 @@ public class BloodStockService {
 
     public List<BloodStock> getBloodStocksByDonor(Donor donor) {
         return bloodStockRepository.findByDonor(donor);
+    }
+
+    public BloodStock findById(Long id) {
+        return bloodStockRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("BloodBank not found"));
     }
 }
